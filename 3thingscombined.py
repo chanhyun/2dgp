@@ -19,11 +19,13 @@ starchle=load_image('itemleft.png')#슈퍼맨왼쪽
 starchri=load_image('itemright.png')#슈퍼맨오른쪽
 starchup=load_image('itemup.png')#슈퍼맨위쪽
 ai=load_image('ai.bmp')#ai
+bye=load_image('bye.png')
+waterjail=load_image('waterjail.png')
 #starch
 class Bomb:
 
     def __init__(self):#take the picture part
-        self.count=0
+        self.count=0#폭탄물 맞을때 5
         self.time=0
         self.boomceframe=0
         self.chx=None
@@ -38,7 +40,8 @@ class Bomb:
         self.boomframe=random.randint(0,7)
 
         self.frame=random.randint(0,4)
-
+        self.bye=load_image('bye.png')
+        self.waterjail=load_image('waterjail.png')
         self.image=load_image('bluebub2.jpg')
         self.boomce=load_image('boomcenter.bmp')
         self.boomri=load_image('boomright.png')
@@ -54,6 +57,7 @@ class Bomb:
         global run,run2,run3,run4
 
 
+
         mathdistanceri=math.sqrt(((cx+45)-self.x) *((cx+20)-self.x) + ((cy+500)-self.y)*((cy+500)-self.y))#캐릭방향오른쪽으로못감 폭탄기준
         mathdistancele=math.sqrt(((cx-5)-self.x) *((cx-5)-self.x) + ((cy+500)-self.y)*((cy+500)-self.y))#캐릭방향왼쪽으로못감 폭탄기준
         mathdistanceup=math.sqrt(((cx+20)-self.x) *((cx+20)-self.x) + ((cy+525)-self.y)*((cy+525)-self.y))#캐릭방향위쪽으로못감 폭탄기준
@@ -61,7 +65,7 @@ class Bomb:
         self.frame=(self.frame+1)%4
         self.time+=1
         self.boomceframe=(self.boomceframe+1)%3
-
+        self.boom=(self.boomframe+1)%8
         if(mathdistanceri<BSIZE+10):#오른쪽
             run=False
         if(mathdistancele<BSIZE+15 or mathdistanceri<BSIZE+15 ):
@@ -72,9 +76,14 @@ class Bomb:
 
         if(mathdistancedown<BSIZE+15):
             run4=False
+        if(self.count==5):
+            self.bye.clip_draw(self.boomframe*68,0,69,105,cx+20,cy+500)
+            #bye.clip_draw(boomframe*68,0,69,105,bx+400,by)
 
 
-        self.boom=(self.boomframe+1)%8
+
+
+
         if(self.time==10):
             self.explode()
             self.x, self.y=random.randrange(40,610,40),random.randrange(60,500,40)
@@ -87,12 +96,24 @@ class Bomb:
     def draw(self):# bomb draw part
         self.image.clip_draw(self.frame*45,0,47,self.chx,self.x,self.y)
     def explode(self):
-
+        global mathdistanceri,mathdistancele,mathdistanceup,mathdistancedown
+        mathdistanceri=math.sqrt(((cx+45)-self.x+40) *((cx+20)-self.x+40) + ((cy+500)-self.y)*((cy+500)-self.y))#캐릭방향오른쪽으로못감 폭탄기준
+        mathdistancele=math.sqrt(((cx-5)-self.x-40) *((cx-5)-self.x-40) + ((cy+500)-self.y)*((cy+500)-self.y))#캐릭방향왼쪽으로못감 폭탄기준
+        #mathdistanceup=math.sqrt(((cx+20)-self.x) *((cx+20)-self.x) + ((cy+525)-self.y)*((cy+525)-self.y))#캐릭방향위쪽으로못감 폭탄기준
+        #mathdistancedown=math.sqrt(((cx+20)-self.x) *((cx+20)-self.x) + ((cy+475)-self.y)*((cy+475)-self.y))#캐릭방향아래쪽으로못감 폭탄기준
         self.boomce.clip_draw(self.boomceframe*50,0,40,50,self.x,self.y)
         self.boomri.clip_draw(self.boomframe*40,0,40,50,self.x+40,self.y)
         self.boomle.clip_draw(self.boomframe*40,0,40,50,self.x-40,self.y)
         self.boomup.clip_draw(self.boomframe*40,0,40,50,self.x,self.y+50)
         self.boomdo.clip_draw(self.boomframe*40,0,40,50,self.x,self.y-50)
+        if(mathdistanceri<BSIZE+15 or mathdistancele<BSIZE+15):
+            self.count=5
+            run=False
+            run2=False
+            run3=False
+            run4=False
+
+
 def handle_events():
     global running#캐릭움직이게 변수
     global cx,cy#캐릭터좌표
