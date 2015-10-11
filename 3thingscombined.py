@@ -38,7 +38,8 @@ class Bomb:
 
             #self.count=1
         self.boomframe=random.randint(0,7)
-
+        self.byex=0
+        self.byey=0
         self.frame=random.randint(0,4)
         self.bye=load_image('bye.png')
         self.waterjail=load_image('waterjail.png')
@@ -53,32 +54,50 @@ class Bomb:
         global bombteam#재귀함수처럼 불러오시면됩니당!!!!!
         global BSIZE
         global cx,cy#두근두근 캐릭터 좌표..
-        global mathdistanceri,mathdistancele,mathdistanceup,mathdistancedown
+        global mathdistance
         global run,run2,run3,run4
+        global bmx,bmy
+        global byecheck
 
+        self.byex=cx
+        self.byey=cy
 
+        math.sqrt(((cx+65)-self.x) *((cx+65)-self.x) + ((cy+500)-self.y)*((cy+500)-self.y))#캐릭방향오른쪽으로못감 폭탄기준
 
-        mathdistanceri=math.sqrt(((cx+45)-self.x) *((cx+20)-self.x) + ((cy+500)-self.y)*((cy+500)-self.y))#캐릭방향오른쪽으로못감 폭탄기준
-        mathdistancele=math.sqrt(((cx-5)-self.x) *((cx-5)-self.x) + ((cy+500)-self.y)*((cy+500)-self.y))#캐릭방향왼쪽으로못감 폭탄기준
-        mathdistanceup=math.sqrt(((cx+20)-self.x) *((cx+20)-self.x) + ((cy+525)-self.y)*((cy+525)-self.y))#캐릭방향위쪽으로못감 폭탄기준
-        mathdistancedown=math.sqrt(((cx+20)-self.x) *((cx+20)-self.x) + ((cy+475)-self.y)*((cy+475)-self.y))#캐릭방향아래쪽으로못감 폭탄기준
         self.frame=(self.frame+1)%4
         self.time+=1
         self.boomceframe=(self.boomceframe+1)%3
         self.boom=(self.boomframe+1)%8
-        if(mathdistanceri<BSIZE+10):#오른쪽
+
+        if(math.sqrt(((cx+65)-self.x) *((cx+65)-self.x) + ((cy+500)-self.y)*((cy+500)-self.y))<BSIZE+10):#오른쪽
             run=False
-        if(mathdistancele<BSIZE+15 or mathdistanceri<BSIZE+15 ):
+        elif(math.sqrt(((cx-5)-self.x) *((cx-5)-self.x) + ((cy+500)-self.y)*((cy+500)-self.y))<BSIZE+10):
             run2=False
-
-        if(mathdistanceup<BSIZE+15 or mathdistancedown<BSIZE+15):
+        elif(math.sqrt(((cx+40)-self.x) *((cx+40)-self.x) + ((cy+540)-self.y)*((cy+540)-self.y))<BSIZE+10):
             run3=False
-
-        if(mathdistancedown<BSIZE+15):
+        elif(math.sqrt(((cx+40)-self.x) *((cx+40)-self.x) + ((cy+460)-self.y)*((cy+460)-self.y))<BSIZE+10):
             run4=False
         if(self.count==5):
-            self.bye.clip_draw(self.boomframe*68,0,69,105,cx+20,cy+500)
-            #bye.clip_draw(boomframe*68,0,69,105,bx+400,by)
+
+            if(math.sqrt(((cx+60)-bmx+20) *((cx+60)-bmx+20) + ((cy+500)-bmy)*((cy+500)-bmy))<BSIZE+10):
+
+                self.count=6
+                byecheck=1
+
+            elif(math.sqrt(((cx-15)-bmx+20) *((cx-15)-bmx+20) + ((cy+500)-bmy)*((cy+500)-bmy))<BSIZE+10):
+                byecheck=1
+                self.count= 6
+
+            elif(math.sqrt(((cx+40)-bmx) *((cx+40)-bmx) + ((cy+540)-bmy+10)*((cy+540)-bmy+10))<BSIZE+10):#아래
+                byecheck=1
+                self.count=6
+
+            elif(math.sqrt(((cx+40)-bmx) *((cx+40)-bmx) + ((cy+460)-bmy-10)*((cy+460)-bmy-10))<BSIZE+10):
+                byecheck=1
+                self.count=6
+
+
+
 
 
 
@@ -87,31 +106,25 @@ class Bomb:
         if(self.time==10):
             self.explode()
             self.x, self.y=random.randrange(40,610,40),random.randrange(60,500,40)
-            #self.count=0
 
-            #self.chx=0
+
+
             self.time=0
 
 
     def draw(self):# bomb draw part
         self.image.clip_draw(self.frame*45,0,47,self.chx,self.x,self.y)
     def explode(self):
-        global mathdistanceri,mathdistancele,mathdistanceup,mathdistancedown
-        mathdistanceri=math.sqrt(((cx+45)-self.x+40) *((cx+20)-self.x+40) + ((cy+500)-self.y)*((cy+500)-self.y))#캐릭방향오른쪽으로못감 폭탄기준
-        mathdistancele=math.sqrt(((cx-5)-self.x-40) *((cx-5)-self.x-40) + ((cy+500)-self.y)*((cy+500)-self.y))#캐릭방향왼쪽으로못감 폭탄기준
-        #mathdistanceup=math.sqrt(((cx+20)-self.x) *((cx+20)-self.x) + ((cy+525)-self.y)*((cy+525)-self.y))#캐릭방향위쪽으로못감 폭탄기준
-        #mathdistancedown=math.sqrt(((cx+20)-self.x) *((cx+20)-self.x) + ((cy+475)-self.y)*((cy+475)-self.y))#캐릭방향아래쪽으로못감 폭탄기준
-        self.boomce.clip_draw(self.boomceframe*50,0,40,50,self.x,self.y)
-        self.boomri.clip_draw(self.boomframe*40,0,40,50,self.x+40,self.y)
-        self.boomle.clip_draw(self.boomframe*40,0,40,50,self.x-40,self.y)
-        self.boomup.clip_draw(self.boomframe*40,0,40,50,self.x,self.y+50)
-        self.boomdo.clip_draw(self.boomframe*40,0,40,50,self.x,self.y-50)
-        if(mathdistanceri<BSIZE+15 or mathdistancele<BSIZE+15):
-            self.count=5
-            run=False
-            run2=False
-            run3=False
-            run4=False
+        global bmx,bmy
+        bmx=self.x
+        bmy=self.y
+        self.boomce.clip_draw(self.boomceframe*50,0,40,50,bmx,bmy)
+        self.boomri.clip_draw(self.boomframe*40,0,40,50,bmx+40,bmy)
+        self.boomle.clip_draw(self.boomframe*40,0,40,50,bmx-40,bmy)
+        self.boomup.clip_draw(self.boomframe*40,0,40,50,bmx,bmy+50)
+        self.boomdo.clip_draw(self.boomframe*40,0,40,50,bmx,bmy-50)
+        self.count=5
+
 
 
 def handle_events():
@@ -135,83 +148,83 @@ def handle_events():
         if event.type==SDL_KEYDOWN:
             if event.key==SDLK_RIGHT:
                 count=1#오른쪽
-                
+
                 run=True
                 run2=False
                 run3=False
                 run4=False
                 #a= [[0]*3] *4
                 #a[0][1]=3
-                
+
             elif event.key == SDLK_LEFT:
                 count=2#왼쪽
-                
+
                 run1=False
                 run2=True
                 run3=False
                 run4=False
-                
-               
+
+
             elif event.key==SDLK_UP:
                 count=3#위
-                
+
                 run1=False
                 run2=False
                 run3=True
                 run4=False
-               
-                
+
+
             elif event.key == SDLK_DOWN:
                 count=4#아래
-                
+
                 run1=False
                 run2=False
                 run3=False
                 run4=True
-                
-                
+
+
             elif event.key == SDLK_a:
                 blockcheck=True
-               
-                
-                blx,bly=cx+20,cy+500
+
+
+                blx,bly=cx+40,cy+500
                 wall.draw(blx,bly)
             elif event.key == SDLK_2:
                 stcount=True
                 starnocount=1
                 sx=-40
                 sy=-27
-                
+
         if event.type==SDL_KEYUP:
-            
+
             if event.key==SDLK_RIGHT:
-                #blockcheck=False
-                #chri.clip_draw(frame*44,0,42,60,cx+20,cy+500)
+
                 run=False
 
             elif event.key==SDLK_LEFT:
-                #chle.clip_draw(frame*44,0,42,60,cx+20,cy+500)
+
                 run2=False
 
             elif event.key==SDLK_UP:
-                #chup.clip_draw(frame*44,0,42,60,cx+20,cy+500)
+
                 run3=False
 
             elif event.key==SDLK_DOWN:
-                #chdo.clip_draw(frame*44,0,42,60,cx+20,cy+500)
+
                 run4=False
 
-           
-            
 
-                
+
+
+
 def mathsqrt(cx,cy,blx,b1y):
-    return math.sqrt(((cx+20)-blx) *((cx+20)-blx) + ((cy+500)-bly)*((cy+500)-bly))
-               
-                
-                
+    return math.sqrt(((cx+40)-blx) *((cx+40)-blx) + ((cy+500)-bly)*((cy+500)-bly))
 
-          
+
+starnocount=None
+byecheck=0
+bmx=0
+bmy=0
 run=False#오른쪽
 run2=False#왼쪽키
 run3=False#위키
@@ -233,9 +246,11 @@ aiy=0#ai y좌표
 aitimer=0#ai나오는시
 aicount=0
 frame1=0
-blx,bly=cx+20,cy+500
+blx,bly=cx+40,cy+500
+byex=0
+byey=0
 mathdistanceri=None
-
+checkcheck=False
 mathdistancele=None
 mathdistanceup=None
 mathdistancedown=None
@@ -248,98 +263,115 @@ while(running):
     aiframe=(aiframe+1)%4
     background.draw(mx,my)
     #wall.draw(mx,my)
-    for bomb in bombteam:
-        bomb.update()
-        bomb.draw()
+    if(checkcheck==False):
+        for bomb in bombteam:
+            bomb.update()
+            bomb.draw()
     if(run==False and run2==False and run3==False and run4==False):
-        chdo.clip_draw(0,0,42,60,cx+20,cy+500)
-       
+        chdo.clip_draw(0,0,42,60,cx+40,cy+500)
+
     star.clip_draw(9,10,sx+40,sy+27,262,15)
     ##폭탄부분
     #bomb.clip_draw(frame1*45,0,48,49,box,90)
     #frame1=(frame1+1)%4
     ##아이템사용부분
     if(stcount==True and run==False and run2==False and run3==False and run4==False):
-        starchdo.clip_draw(frame*44,0,42,60,cx+20,cy+500)
+        checkcheck=True#폭탄다없앰
+        starchdo.clip_draw(frame*44,0,42,60,cx+40,cy+500)
         frame=(frame+1)%8
         timer+=1#아이템사용시간 증가
     if(timer==50 and starnocount==1):#별을쓰고난후의 아이템지속시간은 50초?
         stcount=False
-        
+        checkcheck=False
         timer=0
-        
+
     #star.clip_draw(10,10,0,0,100,200)
-    
+
     ##벽설치부분및 벽과의충돌체크
     if(blockcheck):
         wall.draw(blx,bly)
-        
-        
-       
+
+
+
         if(mathsqrt(cx-25,cy,blx,bly)<BSIZE+10):#왼쪽방향
 
             run2=False
-       
-            
+
+
         elif(mathsqrt(cx+25,cy,blx,bly)<BSIZE+10):#오른쪽방향
             run=False
         elif(mathsqrt(cx,cy+25,blx,bly)<BSIZE+15):
             run3=False
         elif(mathsqrt(cx,cy-25,blx,bly)<BSIZE+15):
             run4=False
-           
-               
-        
-    
+
+
+
+
     ##여기는 캐릭터의 방향전환 부분
     if(count==1 and run):
-        cx=cx+20
-        
-        chri.clip_draw(frame*44,0,42,60,cx+20,cy+500)
+        cx=cx+40
+
+        chri.clip_draw(frame*44,0,42,60,cx+40,cy+500)
         frame=(frame+1)%8
-        
+
     elif(count==2 and run2):
-        cx=cx-20
-        chle.clip_draw(frame*44,0,42,60,cx+20,cy+500)
+        cx=cx-40
+        chle.clip_draw(frame*44,0,42,60,cx+40,cy+500)
         frame=(frame+1)%8
     elif(count==3 and run3):
-        cy=cy+20
-        chup.clip_draw(frame*44,0,42,60,cx+20,cy+500)
+        cy=cy+40
+        chup.clip_draw(frame*44,0,42,60,cx+40,cy+500)
         frame=(frame+1)%8
     elif(count==4 and run4) :
-        cy=cy-20
-        chdo.clip_draw(frame*44,0,42,60,cx+20,cy+500)
+        cy=cy-40
+        chdo.clip_draw(frame*44,0,42,60,cx+40,cy+500)
         frame=(frame+1)%8
     ##캐릭터 아이템쓰고(무적)난 후의 방향전환코딩부분
-    
+
     if (stcount==True and run and count==1):
-        starchri.clip_draw(frame*44,0,42,60,cx+20,cy+500)
+        starchri.clip_draw(frame*44,0,42,60,cx+40,cy+500)
         frame=(frame+1)%8
     elif (stcount==True and run2 and count==2):
-        starchle.clip_draw(frame*44,0,42,60,cx+20,cy+500)
+        starchle.clip_draw(frame*44,0,42,60,cx+40,cy+500)
         frame=(frame+1)%8
     elif (stcount==True and run3 and count==3):
-        starchup.clip_draw(frame*44,0,42,60,cx+20,cy+500)
+        starchup.clip_draw(frame*44,0,42,60,cx+40,cy+500)
         frame=(frame+1)%8
     elif (stcount==True and run4 and count==4):
-        starchdo.clip_draw(frame*44,0,42,60,cx+20,cy+500)
+        starchdo.clip_draw(frame*44,0,42,60,cx+40,cy+500)
         frame=(frame+1)%8
-        
-        
-    
-    
-        
+
+
+
+    if(byecheck==1):#가실때
+        bmx=cx+40
+        bmy=cy+500
+        bye.clip_draw(frame*68,0,69,105,bmx,bmy)
+        chup.clip_draw(0,0,0,0,0,0)
+        chdo.clip_draw(0,0,0,0,0,0)
+        chle.clip_draw(0,0,0,0,0,0)
+        chri.clip_draw(0,0,0,0,0,0)
+        frame=(frame+1)%8
+        run=False
+        run2=False
+        run3=False
+        run4=False
+        cx=-400
+        cy=-400
+
+        # self.bye.clip_draw(self.boomframe*68,0,69,105,self.byex+40,self.byey+500)
     ##캐릭터가 이동할수있는거리 제한 부분
     if(cx+20>600):
-    
-        cx-=20
-    elif(cx+40<60):
-        cx+=20
+
+        cx-=40
+    elif(cx+40<20):
+        cx+=40
     elif(cy+500>552):
-        cy-=20
+        cy-=40
     elif(cy+500<45):
-        cy+=20        
-    
+        cy+=40
+
     #####ai 코딩부분
     """
     ai.clip_draw(frame1*32,190,30,49,aix+40,aiy+500)
@@ -350,35 +382,15 @@ while(running):
         ai.clip_draw(frame1*32,145,30,49,aix+40,aiy+500)
         aiy+=20
         frame1=(frame1+1)%4
-    
+
     if((aiy+500>552)or (aiy+500<65)):
         count=random.randrange(0,5)
         if(aiy+500<60):
             aiy=aiy+20
             frame1=(frame1+1)%4
-        
+
 
     """
-    delay(0.1)
+    delay(0.15)
     handle_events()
     update_canvas()
-    
-    
-        
-    #bx+=0
-    
-   
-    #for x in range(1,6):
-        #for y in range(1,5):
-            #wall.draw(x*75,y*75)
-           
-    
-    
-             
-            
-       
-    
-
-       
-    
-    #close_canvas()
