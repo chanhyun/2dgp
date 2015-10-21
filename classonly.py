@@ -7,6 +7,7 @@ open_canvas()
 class Block:
     def __init__(self):
         global blx,bly
+        global ch
         self.blockcheck=False
         self.blx,self.bly=blx,bly
 
@@ -30,8 +31,9 @@ class Bomb:
         self.count=0
         self.time=0
         self.boomceframe=0
+        self.dieframe=0
         self.chx=None
-        
+
         #self.x=0
         #self.y=0
         if(self.time==0):
@@ -50,13 +52,15 @@ class Bomb:
         self.boomle=load_image('boomleft.png')
         self.boomup=load_image('boomup.png')
         self.boomdo=load_image('boomdown.png')
+        self.bye=load_image('bye.png')
     def update(self):#frame about bombanimation
         #global bomb
         global itemuse
+
         self.frame=(self.frame+1)%4
         self.time+=1
         self.boomceframe=(self.boomceframe+1)%3
-
+        self.dieframe=(self.dieframe+1)%3
         self.boomframe=(self.boomframe+1)%8
         if(self.time==10):
             
@@ -71,20 +75,36 @@ class Bomb:
 
 
     def draw(self):# bomb draw part
+        global cx,cy
+        global ch
+        global run,run2,run3,run4
         self.image.clip_draw(self.frame*45,0,47,self.chx,self.x,self.y)
-        
-    def explode(self):
+        if(self.count==3):
+            self.bye.clip_draw(self.boomframe*68,0,69,105,cx,cy)
 
+
+
+
+
+
+
+
+    def explode(self):
+        global cx,cy
         self.boomce.clip_draw(self.boomceframe*50,0,40,50,self.x,self.y)
         #self.boomceframe=(self.boomceframe+1)%3
         self.boomri.clip_draw(self.boomframe*40,0,40,50,self.x+40,self.y)
         #self.boomframe=(self.boomframe+1)%8
         self.boomle.clip_draw(self.boomframe*40,0,40,50,self.x-40,self.y)
         #self.boomframe=(self.boomframe+1)%8
-        self.boomup.clip_draw(self.boomframe*40,0,40,50,self.x,self.y+50)
+        self.boomup.clip_draw(self.boomframe*40,0,40,50,self.x,self.y+40)
         #self.boomframe=(self.boomframe+1)%8
-        self.boomdo.clip_draw(self.boomframe*40,0,40,50,self.x,self.y-50)
+        self.boomdo.clip_draw(self.boomframe*40,0,40,50,self.x,self.y-40)
         #self.boomframe=(self.boomframe+1)%8
+        if((self.x+40==cx and self.y==cy) or (self.x-40==cx and self.y==cy) or (self.x==cx and self.y+40==cy)or (self.x==cx and self.y-40==cy)):
+            self.count=3
+
+
 class Map:
     def __init__(self):
         self.map=load_image('background.png')
@@ -293,6 +313,13 @@ def handle_events():
                #blockcheck=True
 def mathsqrt(cx,cy,blx,b1y):
     return math.sqrt((cx-blx) *(cx-blx) + (cy-bly)*(cy-bly))
+
+ai=load_image('ai.bmp')#ai
+aiframe=0
+aix=0#ai x좌표
+aiy=0#ai y좌표
+aitimer=0#ai나오는시
+aicount=0
 itemuse=False
 
 blockcheck=False
@@ -322,6 +349,23 @@ while(running):
     clear_canvas()
 
     ma.draw()
+    aitimer+=1
+
+    ai.clip_draw(aiframe*32,190,30,49,aix+40,aiy+500)
+    aiframe=(aiframe+1)%4
+    if(aicount==0):
+        aiy-=20
+        aiframe=(aiframe+1)%4
+    elif(aicount==2):
+        ai.clip_draw(aiframe*32,145,30,49,aix+40,aiy+500)
+        aiy+=20
+        aiframe=(aiframe+1)%4
+
+    if((aiy+500>552)or (aiy+500<65)):
+        count=random.randrange(0,5)
+        if(aiy+500<60):
+            aiy=aiy+20
+            aiframe=(aiframe+1)%4
     for block in blockteam:
         block.blockupdate()
 
