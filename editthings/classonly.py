@@ -35,7 +35,7 @@ class Bomb:
         self.boomceframe=0
         self.dieframe=0
         self.chx=None
-
+        self.aidieframe=0
         #self.x=0
         #self.y=0
         if(self.time==0):
@@ -75,6 +75,10 @@ class Bomb:
 
         elif(self.dieframe==4):
             game_framework.push_state(gameover)
+        if(self.aidieframe<4 and self.count==5):
+            self.aidieframe=(self.aidieframe+1)
+        elif(self.aidieframe==4):
+            game_framework.push_state(gameover)
 
 
 
@@ -86,22 +90,22 @@ class Bomb:
             
 
 
-    def draw(self):# bomb draw part
+    def draw(self,timer):# bomb draw part
         global cx,cy
         global ch
         global run,run2,run3,run4
         self.image.clip_draw(self.frame*45,0,47,self.chx,self.x,self.y)
         if(self.time==10):
 
-            self.explode()
+            self.explode(timer)
         #if(self.count==3):
             #self.bye.clip_draw(self.boomframe*68,0,69,105,cx,cy)
 
 
 
-    def explode(self):
+    def explode(self,timer):
         global cx,cy
-        global bombcount
+        global bombcount,autoai
 
         self.boomce.clip_draw(self.boomceframe*50,0,40,50,self.x,self.y)
 
@@ -114,10 +118,13 @@ class Bomb:
         self.boomdo.clip_draw(self.boomframe*40,0,40,50,self.x,self.y-40)
 
         if((self.x+40==cx and self.y==cy) or (self.x-40==cx and self.y==cy) or (self.x==cx and self.y+40==cy)or (self.x==cx and self.y-40==cy)):
-            self.count=3
+            self.count=3#캐릭죽을때
             for block in blockteam:
                 if((self.x+40==block.blx and self.y==block.bly) or (self.x-40==block.blx and self.y==block.bly) or (self.x==block.blx and self.y+40==block.bly)or (self.x==block.blx and self.y-40==block.bly)):
                     self.count=0
+        if(timer>50):
+            if((self.x+40==autoai.aix and self.y==autoai.aiy) or (self.x-40==autoai.aix and self.y==autoai.aiy) or (self.x==autoai.aix and self.y+40==autoai.aiy)or (self.x==autoai.aix and self.y-40==autoai.aiy)):
+                self.count=5#ai죽을때
 
 
 
@@ -363,6 +370,7 @@ class AI:
                     if(bomb.x == self.aix and bomb.y==self.aiy and itemuse==False):
                         self.aiy=self.aiy+40
                         break;
+
             if(self.aix<40):
                 self.aix+=40
             if(self.aix>600):
@@ -375,15 +383,25 @@ class AI:
 
 
     def draw(self):
-        if(self.aiwaycount==0):
-           self.ai.clip_draw(self.aiframe*32,48,30,49,self.aix,self.aiy)#오른쪽
+        global bombteam
+        for bomb in bombteam:
+            if bomb.count==5:
+                self.ai.clip_draw(bomb.aidieframe*32,0,30,49,self.aix,self.aiy)
 
-        elif(self.aiwaycount==1):
-           self.ai.clip_draw(self.aiframe*32,93,30,49,self.aix,self.aiy)#왼쪽
-        elif(self.aiwaycount==2):
-           self.ai.clip_draw(self.aiframe*32,145,30,49,self.aix,self.aiy)#위
-        elif(self.aiwaycount==3):
-           self.ai.clip_draw(self.aiframe*32,190,30,49,self.aix,self.aiy)#아래
+                #game_framework.push_state(gameover)
+
+
+                break;
+        if(bomb.count !=5):
+            if(self.aiwaycount==0):
+                self.ai.clip_draw(self.aiframe*32,48,30,49,self.aix,self.aiy)#오른쪽
+            elif(self.aiwaycount==1):
+                self.ai.clip_draw(self.aiframe*32,93,30,49,self.aix,self.aiy)#왼쪽
+            elif(self.aiwaycount==2):
+                self.ai.clip_draw(self.aiframe*32,145,30,49,self.aix,self.aiy)#위
+            elif(self.aiwaycount==3):
+                self.ai.clip_draw(self.aiframe*32,190,30,49,self.aix,self.aiy)#아래
+
 def handle_events():
     global cx,cy#캐릭좌표
     global sx,sy#아이템쓰고난후좌표
@@ -559,7 +577,7 @@ def draw():
         autoai.draw()
     if(itemuse==False):
         for bomb in bombteam:
-            bomb.draw()
+            bomb.draw(time)
     for block in blockteam:
         block.blockupdate()
 
