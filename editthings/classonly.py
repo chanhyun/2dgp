@@ -311,36 +311,79 @@ class AI:
     def __init__(self):
         self.ai=load_image('ai.bmp')
 
-        self.aix, self.aiy=100,40
+        self.aix, self.aiy=40,100
         self.aiframe=0
         self.aiwaycount=0
         self.timer=0
-    def update(self):
-        self.aiwaycount=random.randrange(0,3,1)
+    def update(self,timer):
+        global blockteam
+        global bombteam
         self.aiframe=(self.aiframe+1)%4
-        if(self.aiwaycount==0):
+        if timer%3==0:
 
-           self.aix+=20
+            if(self.aiwaycount==0):#오른쪽
 
-        elif(self.aiwaycount==1):
+                self.aix+=40
+                for block in blockteam:
+                    if(block.blockcheck==True and block.blx == self.aix and block.bly==self.aiy):
+                        self.aix=self.aix-40
+                        break;
+                for bomb in bombteam:
+                    if(bomb.x == self.aix and bomb.y==self.aiy and itemuse==False):
+                        self.aix=self.aix-40
+                        break;
+            elif(self.aiwaycount==1):#왼쪽
 
-            self.aix-=20
+                self.aix-=40
+                for block in blockteam:
+                    if(block.blockcheck==True and block.blx == self.aix and block.bly==self.aiy):
+                        self.aix=self.aix+40
+                        break;
+                for bomb in bombteam:
+                    if(bomb.x == self.aix and bomb.y==self.aiy and itemuse==False):
+                        self.aix=self.aix+40
+                        break;
+            elif(self.aiwaycount==2):#위
+                self.aiy+=40
+                for block in blockteam:
+                    if(block.blockcheck==True and block.blx == self.aix and block.bly==self.aiy):
+                        self.aiy=self.aiy-40
+                        break;
+                for bomb in bombteam:
+                    if(bomb.x == self.aix and bomb.y==self.aiy and itemuse==False):
+                        self.aiy=self.aiy-40
+                        break;
+            elif(self.aiwaycount==3):#아래
+                self.aiy-=40
+                for block in blockteam:
+                    if(block.blockcheck==True and block.blx == self.aix and block.bly==self.aiy):
+                        self.aiy=self.aiy+40
+                        break;
+                for bomb in bombteam:
+                    if(bomb.x == self.aix and bomb.y==self.aiy and itemuse==False):
+                        self.aiy=self.aiy+40
+                        break;
+            if(self.aix<40):
+                self.aix+=40
+            if(self.aix>600):
+                self.aix-=40
+            if(self.aiy>552):
+                self.aiy-=40
+            if(self.aiy<55):
+                self.aiy+=40
+            self.aiwaycount=random.randrange(0,4,1)
 
-        elif(self.aiwaycount==2):
-            pass
-        elif(self.aiwaycount==3):
-            pass
-        if(self.aix+20<20):
-            self.aiy-=20
-        if(self.aix+20>600):
-            self.aix-=20
 
     def draw(self):
         if(self.aiwaycount==0):
-           self.ai.clip_draw(self.aiframe*32,48,30,49,self.aix+20,self.aiy+500)
-        elif(self.aiwaycount==1):
-            self.ai.clip_draw(self.aiframe*32,93,30,49,self.aix+20,self.aiy+500)
+           self.ai.clip_draw(self.aiframe*32,48,30,49,self.aix,self.aiy)#오른쪽
 
+        elif(self.aiwaycount==1):
+           self.ai.clip_draw(self.aiframe*32,93,30,49,self.aix,self.aiy)#왼쪽
+        elif(self.aiwaycount==2):
+           self.ai.clip_draw(self.aiframe*32,145,30,49,self.aix,self.aiy)#위
+        elif(self.aiwaycount==3):
+           self.ai.clip_draw(self.aiframe*32,190,30,49,self.aix,self.aiy)#아래
 def handle_events():
     global cx,cy#캐릭좌표
     global sx,sy#아이템쓰고난후좌표
@@ -442,8 +485,8 @@ bomb=None
 bombteam=None
 blockteam=None
 score=0
-auto=None
-
+autoai=None
+aiteam=None
 
 
 
@@ -453,7 +496,8 @@ def enter():
 
     global ma,ch
     global blockteam
-    global bombteam,auto
+    global bombteam,autoai
+    global aiteam
     global cx,cy
     cx=40
     cy=500
@@ -461,17 +505,17 @@ def enter():
     blockteam=[Block() for i in range(11)]
     ma=Map()
     ch=Ch()
-    auto=AI()
+    autoai=AI()
 
 def exit():
-    global ma,ch,blockteam,block,bombteam,bomb,auto
+    global ma,ch,blockteam,block,bombteam,bomb,autoai
     del(bombteam)
     del(bomb)
     del(block)
     del(blockteam)
     del(ma)
     del(ch)
-    del(auto)
+    del(autoai)
 
 def update():
 
@@ -480,10 +524,13 @@ def update():
     global block
     global time
     global score
+    global autoai
     time+=1
 
+
+    autoai.update(time)
     ch.update()
-    auto.update()
+
     if(itemuse==False):
         for bomb in bombteam:
             bomb.update()
@@ -491,7 +538,9 @@ def update():
     for block in blockteam:
 
         block.blockupdate()
-    #if(time==50):
+
+
+
 
     score+=1
     delay(0.1)
@@ -502,10 +551,12 @@ def draw():
     global itemuse
     global bomb
     global block
-    global auto
+    global autoai
+    global time
     ma.draw()
     ch.draw()
-    auto.draw()
+    if time>50:
+        autoai.draw()
     if(itemuse==False):
         for bomb in bombteam:
             bomb.draw()
