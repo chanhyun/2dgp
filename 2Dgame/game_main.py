@@ -123,11 +123,15 @@ class Bomb:
                 if((self.x+40==block.blx and self.y==block.bly) or (self.x-40==block.blx and self.y==block.bly) or (self.x==block.blx and self.y+40==block.bly)or (self.x==block.blx and self.y-40==block.bly)):
                     self.count=0
         if(timer>50):
-            if((self.x+40==autoai.aix and self.y==autoai.aiy) or (self.x-40==autoai.aix and self.y==autoai.aiy) or (self.x==autoai.aix and self.y+40==autoai.aiy)or (self.x==autoai.aix and self.y-40==autoai.aiy)):
-                autoai.life-=1
-                if(autoai.life==0):
-                    self.count=5#ai죽을때
-
+            for i in range(0,keyinputcount):
+            #autoai[i].draw()
+                if((self.x+40==autoai[i].aix and self.y==autoai[i].aiy) or (self.x-40==autoai[i].aix and self.y==autoai[i].aiy) or (self.x==autoai[i].aix and self.y+40==autoai[i].aiy)or (self.x==autoai[i].aix and self.y-40==autoai[i].aiy)):
+                    autoai[i].life-=1
+                    if(autoai[i].life==0  ):
+                        self.count=5#ai죽을때
+                        #ai_diecount+=1
+                                #if(diecount==KEyinputcount)
+                                #self.count==5
 
 
 
@@ -307,24 +311,36 @@ class Ch:
         
 ###AI를 먼저 JSON화 시킵니다
 def create_ai():
-    ai_data_text = '{"ai":  {"StartState":"RIGHT","x":40,"y":100}}'
+    global keyinputcount
+
+    ai_data_text = '{"0":{"StartState":"RIGHT","x":40,"y":100},"1":{"StartState":"LEFT","x":40,"y":500},"2":{"StartState":"UP","x":120,"y":200}}'
 
     ai_state_table={
         "RIGHT":AI.RIGHT,
         "LEFT":AI.LEFT,
         "UP":AI.UP,
         "DOWN":AI.DOWN
+
+
+    }
+
+    ai_select_table = {
+        0 : "0",
+        1 : "1",
+        2 : "2"
     }
 
     ai_data = json.loads(ai_data_text)
 
-
-    ai=AI()
-    ai.aix=ai_data['ai']['x']
-    ai.aiy=ai_data['ai']['y']
-    ai.state=ai_state_table[ai_data['ai']['StartState']]
-
-    return ai
+    aiteam=[]
+    for i in range(0,keyinputcount):
+        ai=AI()
+        ai.select = ai_data[ai_select_table[i]]
+        ai.aix=ai.select['x']
+        ai.aiy=ai.select['y']
+        ai.state=ai_state_table[ai.select['StartState']]
+        aiteam.append(ai)
+    return aiteam
 
 
 class AI:
@@ -386,6 +402,7 @@ class AI:
         self.state=self.RIGHT
         self.life=3
         self.timer=0
+        self.select = "noname"
 
     def update(self,timer):
         global blockteam
@@ -438,7 +455,8 @@ def handle_events():
     global stcount
     global blockteam
     global block,bomb
-    global blockcount
+    global blockcount,autoai
+    global keyinputcount
     events=get_events()
     for event in events:
         if event.type==SDL_KEYDOWN:
@@ -474,7 +492,9 @@ def handle_events():
             elif event.key== SDLK_3:
                 itemaix=-30
                 itemaiy=-27
+                keyinputcount+=1
 
+                autoai = create_ai()
             elif event.key ==SDLK_a:
 
                 if(inputcount==0):
@@ -506,8 +526,8 @@ def handle_events():
                 down=False
             #elif event.key==SDLK_a:
                #blockcheck=True
-def mathsqrt(cx,cy,blx,b1y):
-    return math.sqrt((cx-blx) *(cx-blx) + (cy-bly)*(cy-bly))
+
+keyinputcount=1
 bombcount=0
 time=0
 itemstar=False
@@ -548,6 +568,7 @@ def enter():
     global aiteam
     global cx,cy
     global time
+
     cx=40
     cy=500
     bombteam=[Bomb() for i in range(11)]
@@ -556,6 +577,7 @@ def enter():
     ch=Ch()
     #autoai=AI()
     autoai=create_ai()
+
 def exit():
     global ma,ch,blockteam,block,bombteam,bomb,autoai
     del(bombteam)
@@ -574,10 +596,11 @@ def update():
     global time
     global score
     global autoai
+    global keyinputcount
     time+=1
 
-
-    autoai.update(time)
+    for i in range(0,keyinputcount):
+        autoai[i].update(time)
     ch.update()
 
     if(itemstar==False):
@@ -605,7 +628,9 @@ def draw():
     ma.draw()
     ch.draw()
     if time>50:
-        autoai.draw()
+        for i in range(0,keyinputcount):
+            autoai[i].draw()
+
 
     if(itemstar==False):
         for bomb in bombteam:
