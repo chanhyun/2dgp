@@ -14,7 +14,7 @@ class Block:
         self.blx,self.bly=cx,cy
 
         #self.count=0#벽이 설치됫다면 1로
-        
+
         #self.block[2][100]
         self.block=load_image('wall.png')
         self.count=0
@@ -24,27 +24,27 @@ class Block:
 
         if(self.blockcheck==True):
             self.block.draw(self.blx,self.bly)
-     
-       
-   
+
+
+
 class Bomb:
 
     def __init__(self):#take the picture part
         self.count=0
         self.time=0
         self.boomceframe=0
+        self.boomframe=0
         self.dieframe=0
 
         self.aidieframe=0
-        #self.x=0
-        #self.y=0
+
         if(self.time==0):
 
 
             self.x, self.y=random.randrange(40,650,40),random.randrange(60,500,40)
 
-            #self.count=1
-        self.boomframe=random.randint(0,7)
+
+        #self.boomframe=(self.boomframe+1)
 
         self.frame=random.randint(0,4)
 
@@ -64,7 +64,7 @@ class Bomb:
         self.time+=1
         self.boomceframe=(self.boomceframe+1)%3
 
-        self.boomframe=(self.boomframe+1)%8
+        #self.boomframe=(self.boomframe+1)%8
         for block in blockteam:
             if(block.blx == self.x and block.bly==self.y):
                 self.x, self.y=random.randrange(40,570,40),random.randrange(60,500,40)#폭탄과 벽의 중복사라지게하는곳
@@ -87,7 +87,7 @@ class Bomb:
              self.x, self.y=random.randrange(40,610,40),random.randrange(60,500,40)
              self.time=0
 
-            
+
 
 
     def draw(self,timer):# bomb draw part
@@ -138,19 +138,13 @@ class Bomb:
 
 
 
-
-
-
-
-
-
-
 class Map:
+    image =None
     def __init__(self):
-        self.map=load_image('background.png')
-        self.font=load_font('ENCOBK.TTF')
+        if Map.image==None:
+            self.map=load_image('background.png')
+            self.font=load_font('ENCOBK.TTF')
     def draw(self):
-        global x
         self.map.draw(400,300)
         self.font.draw(30,550, '%d' %score)
 
@@ -162,14 +156,25 @@ class Map:
 
 
 class Ch:
+    PIXEL_PER_METER=(10.0/0.6896)
+    RUN_SPEED_KMPH=10.0
+    RUN_SPEED_MPM=(RUN_SPEED_KMPH*1000.0/60.0)
+    RUN_SPEED_MPS=(RUN_SPEED_MPM/60.0)
+    RUN_SPEED_PPS=(RUN_SPEED_MPS * PIXEL_PER_METER)
+
+
+    TIME_PER_ACTION=0.5
+    ACTION_PER_TIME=1.0/TIME_PER_ACTION
+    FRAMES_PER_ACTION=8
+
     def __init__(self):
 
         global cx,cy
         global right,left,up,down
-
+        self.total_frames=0
         self.chframe=0
         self.sttimer=0
-        
+
         self.chdo=load_image('downp.png')
         self.chri=load_image('rightp.png')
         self.chle=load_image('leftp.png')
@@ -203,7 +208,7 @@ class Ch:
             self.itemai.clip_draw(2,5,itemaix,itemaiy,300,15)
 
             self.chdo.clip_draw(self.chframe*44,0,42,60,cx,cy)
-        
+
             if(right==True):
                 self.chri.clip_draw(self.chframe*44,0,42,60,cx,cy)
                 self.chframe=(self.chframe+1)%8
@@ -236,6 +241,7 @@ class Ch:
 
 
     def update(self):
+        self.total_frames +=Ch.FRAMES_PER_ACTION*Ch.ACTION_PER_TIME*frame_time
         global right,left,up,down#0 오른쪽 1 왼쪽 2 위 3아
         global stcount
         global cx,cy
@@ -243,77 +249,77 @@ class Ch:
         global itemstar
         global blockteam
         global bombteam
-        self.frame=(self.chframe+1)%8
+        self.frame=int(self.total_frames)%8
 
         if(right==True):
-            cx=cx+40
-            
+            cx=cx+int(Ch.RUN_SPEED_PPS)
+
             if(cx>600):
-                cx-=40
+                cx-=int(Ch.RUN_SPEED_PPS)
             for block in blockteam:
                 if(block.blockcheck==True and block.blx == cx and block.bly==cy):
-                    cx=cx-40
+                    cx=cx-int(Ch.RUN_SPEED_PPS)
                     break;
 
             for bomb in bombteam:
                 if(bomb.x == cx and bomb.y==cy and itemstar==False):
-                    cx=cx-40
+                    cx=cx-int(Ch.RUN_SPEED_PPS)
                     break;
 
         elif(left==True):
-            cx=cx-40
-         
+            cx=cx-int(Ch.RUN_SPEED_PPS)
+
             if(cx<40):
-                cx+=40
+                cx+=int(Ch.RUN_SPEED_PPS)
             for block in blockteam:
                 if(block.blockcheck==True and block.blx == cx and block.bly==cy):
-                    cx=cx+40
+                    cx=cx+int(Ch.RUN_SPEED_PPS)
                     break;
             for bomb in bombteam:
                 if(bomb.x == cx and bomb.y==cy and itemstar==False):
-                    cx=cx+40
+                    cx=cx+int(Ch.RUN_SPEED_PPS)
                     break;
         elif(up==True):
-            cy=cy+40
-         
+            cy=cy+int(Ch.RUN_SPEED_PPS)
+
             if(cy>552):
-                cy-=40
+                cy-=int(Ch.RUN_SPEED_PPS)
             for block in blockteam:
                 if(block.blockcheck==True and block.blx == cx and block.bly==cy):
-                    cy=cy-40
+                    cy=cy-int(Ch.RUN_SPEED_PPS)
 
                     break;
             for bomb in bombteam:
                 if(bomb.x == cx and bomb.y==cy and itemstar==False):
-                    cy=cy-40
+                    cy=cy-int(Ch.RUN_SPEED_PPS)
                     break;
         elif(down==True):
-            cy=cy-40
-          
+            cy=cy-int(Ch.RUN_SPEED_PPS)
+
             if(cy<45):
-                cy+=40
+                cy+=int(Ch.RUN_SPEED_PPS)
             for block in blockteam:
                 if(block.blockcheck==True and block.blx == cx and block.bly==cy):
-                    cy=cy+40
+                    cy=cy+int(Ch.RUN_SPEED_PPS)
                     break;
             for bomb in bombteam:
                 if(bomb.x == cx and bomb.y==cy and itemstar==False):
-                    cy=cy+40
+                    cy=cy+int(Ch.RUN_SPEED_PPS)
                     break;
         if(stcount==True):
             self.sttimer+=1
-            
+
             if(self.sttimer==30):
                 stcount=False
                 self.sttimer=0
                 itemstar=False
-      
-        
-###AI를 먼저 JSON화 시킵니다
+
+
+###AI를  JSON화 시킵니다
 def create_ai():
     global keyinputcount
 
-    ai_data_text = '{"0":{"StartState":"RIGHT","x":40,"y":100},"1":{"StartState":"LEFT","x":40,"y":500},"2":{"StartState":"UP","x":120,"y":200}}'
+    ai_data_text = '{"0":{"StartState":"RIGHT","x":40,"y":100},"1":{"StartState":"LEFT","x":40,"y":500},"2":{"StartState":"UP","x":120,"y":220}}'
 
     ai_state_table={
         "RIGHT":AI.RIGHT,
@@ -344,49 +350,50 @@ def create_ai():
 
 
 class AI:
+
     RIGHT,LEFT,UP,DOWN=0,1,2,3
     def RIGHT_RUN(self):
-        self.aix+=40
+        self.aix+=int(Ch.RUN_SPEED_PPS)
         for block in blockteam:
             if(block.blockcheck==True and block.blx == self.aix and block.bly==self.aiy):
-                self.aix=self.aix-40
+                self.aix=self.aix-int(Ch.RUN_SPEED_PPS)
                 break;
         for bomb in bombteam:
             if(bomb.x == self.aix and bomb.y==self.aiy and itemstar==False):
-                self.aix=self.aix-40
+                self.aix=self.aix-int(Ch.RUN_SPEED_PPS)
                 break;
 
     def LEFT_RUN(self):
-        self.aix-=40
+        self.aix-=int(Ch.RUN_SPEED_PPS)
         for block in blockteam:
                 if(block.blockcheck==True and block.blx == self.aix and block.bly==self.aiy):
-                    self.aix=self.aix+40
+                    self.aix=self.aix+int(Ch.RUN_SPEED_PPS)
                     break;
         for bomb in bombteam:
                 if(bomb.x == self.aix and bomb.y==self.aiy and itemstar==False):
-                    self.aix=self.aix+40
+                    self.aix=self.aix+int(Ch.RUN_SPEED_PPS)
                     break;
 
     def UP_RUN(self):
-        self.aiy+=40
+        self.aiy+=int(Ch.RUN_SPEED_PPS)
         for block in blockteam:
                 if(block.blockcheck==True and block.blx == self.aix and block.bly==self.aiy):
-                    self.aiy=self.aiy-40
+                    self.aiy=self.aiy-int(Ch.RUN_SPEED_PPS)
                     break;
         for bomb in bombteam:
                 if(bomb.x == self.aix and bomb.y==self.aiy and itemstar==False):
-                    self.aiy=self.aiy-40
+                    self.aiy=self.aiy-int(Ch.RUN_SPEED_PPS)
                     break;
     def DOWN_RUN(self):
 
-        self.aiy-=40
+        self.aiy-=int(Ch.RUN_SPEED_PPS)
         for block in blockteam:
                 if(block.blockcheck==True and block.blx == self.aix and block.bly==self.aiy):
-                    self.aiy=self.aiy+40
+                    self.aiy=self.aiy+int(Ch.RUN_SPEED_PPS)
                     break;
         for bomb in bombteam:
             if(bomb.x == self.aix and bomb.y==self.aiy and itemstar==False):
-                    self.aiy=self.aiy+40
+                    self.aiy=self.aiy+int(Ch.RUN_SPEED_PPS)
                     break;
     ai_state_table={
         RIGHT:RIGHT_RUN,
@@ -413,13 +420,13 @@ class AI:
 
 
             if(self.aix<40):
-                self.aix+=40
+                self.aix+=int(Ch.RUN_SPEED_PPS)
             if(self.aix>600):
-                self.aix-=40
+                self.aix-=int(Ch.RUN_SPEED_PPS)
             if(self.aiy>552):
-                self.aiy-=40
+                self.aiy-=int(Ch.RUN_SPEED_PPS)
             if(self.aiy<55):
-                self.aiy+=40
+                self.aiy+=int(Ch.RUN_SPEED_PPS)
             self.state=random.randrange(0,4,1)
 
 
@@ -490,8 +497,7 @@ def handle_events():
                 sx=-40
                 sy=-20
             elif event.key== SDLK_3:
-                itemaix=-30
-                itemaiy=-27
+
                 keyinputcount+=1
 
                 autoai = create_ai()
@@ -526,7 +532,8 @@ def handle_events():
                 down=False
             #elif event.key==SDLK_a:
                #blockcheck=True
-
+current_time=get_time()
+frame_time=get_time()-current_time
 keyinputcount=1
 bombcount=0
 time=0
@@ -597,15 +604,20 @@ def update():
     global score
     global autoai
     global keyinputcount
+    global itemaix,itemaiy
     time+=1
 
     for i in range(0,keyinputcount):
         autoai[i].update(time)
     ch.update()
+    if(keyinputcount==3):
+        itemaix=-30
+        itemaiy=-27
 
     if(itemstar==False):
         for bomb in bombteam:
             bomb.update()
+            bomb.boomframe=(bomb.boomframe+1)%8
 
     for block in blockteam:
 
