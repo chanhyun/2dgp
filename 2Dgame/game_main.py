@@ -34,17 +34,14 @@ class Bomb:
         self.time=0
         self.boomceframe=0
         self.boomframe=0
+
         self.dieframe=0
 
-        self.aidieframe=0
 
         if(self.time==0):
 
 
-            self.x, self.y=random.randrange(40,650,40),random.randrange(60,500,40)
-
-
-        #self.boomframe=(self.boomframe+1)
+            self.x, self.y=random.randrange(40,610,40),random.randrange(60,500,40)
 
         self.frame=random.randint(0,4)
 
@@ -56,15 +53,14 @@ class Bomb:
         self.boomdo=load_image('boomdown.png')
         self.bye=load_image('bye.png')
     def update(self):#frame about bombanimation
-        #global bomb
+
         global itemstar
         global blockteam
         global block
         self.frame=(self.frame+1)%4
-        self.time+=1
-        self.boomceframe=(self.boomceframe+1)%3
+        self.time=(self.time+1)%14
 
-        #self.boomframe=(self.boomframe+1)%8
+
         for block in blockteam:
             if(block.blx == self.x and block.bly==self.y):
                 self.x, self.y=random.randrange(40,570,40),random.randrange(60,500,40)#폭탄과 벽의 중복사라지게하는곳
@@ -75,17 +71,15 @@ class Bomb:
 
         elif(self.dieframe==4):
             game_framework.push_state(gameover)
-        if(self.aidieframe<4 and self.count==5):
-            self.aidieframe=(self.aidieframe+1)
-        elif(self.aidieframe==4):
-            game_framework.push_state(gameover)
 
 
 
 
-        if(self.time==11):
+
+
+        if(self.time==0):
              self.x, self.y=random.randrange(40,610,40),random.randrange(60,500,40)
-             self.time=0
+             self.boomframe=0
 
 
 
@@ -95,17 +89,19 @@ class Bomb:
         global ch
         global right,left,up,down
         self.image.clip_draw(self.frame*45,0,47,50,self.x,self.y)
-        if(self.time==10):
+
+        if(self.time>=8):
 
             self.explode(timer)
-        #if(self.count==3):
-            #self.bye.clip_draw(self.boomframe*68,0,69,105,cx,cy)
 
 
 
     def explode(self,timer):
         global cx,cy
         global bombcount,autoai
+
+        self.boomframe=(self.boomframe+1)%8
+
 
         self.boomce.clip_draw(self.boomceframe*50,0,40,50,self.x,self.y)
 
@@ -122,16 +118,17 @@ class Bomb:
             for block in blockteam:
                 if((self.x+40==block.blx and self.y==block.bly) or (self.x-40==block.blx and self.y==block.bly) or (self.x==block.blx and self.y+40==block.bly)or (self.x==block.blx and self.y-40==block.bly)):
                     self.count=0
-        if(timer>50):
+        if(timer>50 and self.time==9):
             for i in range(0,keyinputcount):
-            #autoai[i].draw()
+
                 if((self.x+40==autoai[i].aix and self.y==autoai[i].aiy) or (self.x-40==autoai[i].aix and self.y==autoai[i].aiy) or (self.x==autoai[i].aix and self.y+40==autoai[i].aiy)or (self.x==autoai[i].aix and self.y-40==autoai[i].aiy)):
                     autoai[i].life-=1
-                    if(autoai[i].life==0  ):
-                        self.count=5#ai죽을때
-                        #ai_diecount+=1
-                                #if(diecount==KEyinputcount)
-                                #self.count==5
+
+                    for j in range(0,keyinputcount):
+                        print("j: %d "%autoai[j].life)
+                    print("\n")
+                    break;
+
 
 
 
@@ -331,22 +328,20 @@ def create_ai():
     }
 
     ai_select_table = {
-        0 : "0",
-        1 : "1",
-        2 : "2"
+        1 : "0",
+        2 : "1",
+        3 : "2"
     }
 
     ai_data = json.loads(ai_data_text)
 
-    aiteam=[]
-    for i in range(0,keyinputcount):
-        ai=AI()
-        ai.select = ai_data[ai_select_table[i]]
-        ai.aix=ai.select['x']
-        ai.aiy=ai.select['y']
-        ai.state=ai_state_table[ai.select['StartState']]
-        aiteam.append(ai)
-    return aiteam
+    ai=AI()
+    ai.select = ai_data[ai_select_table[keyinputcount]]
+    ai.aix=ai.select['x']
+    ai.aiy=ai.select['y']
+    ai.state=ai_state_table[ai.select['StartState']]
+    autoai.append(ai)
+
 
 
 class AI:
@@ -410,12 +405,15 @@ class AI:
         self.life=3
         self.timer=0
         self.select = "noname"
-
+        self.aidieframe=0
     def update(self,timer):
         global blockteam
         global bombteam
+        global aidiecount
         self.aiframe=(self.aiframe+1)%4
-        if timer%3==0:
+        if timer%3==0 and self.life>0:
+
+
             self.ai_state_table[self.state](self)
 
 
@@ -428,19 +426,22 @@ class AI:
             if(self.aiy<55):
                 self.aiy+=int(Ch.RUN_SPEED_PPS)
             self.state=random.randrange(0,4,1)
+        elif self.life<=0:
+            self.aidieframe=(self.aidieframe+1)
 
+            if self.aidieframe==4:
+                aidiecount+=1
+                if(aidiecount==keyinputcount):
+                    game_framework.push_state(gameover)
 
     def draw(self):
         global bombteam
-        for bomb in bombteam:
-            if bomb.count==5:
-                self.ai.clip_draw(bomb.aidieframe*32,0,30,49,self.aix,self.aiy)
-
-                #game_framework.push_state(gameover)
+        if(self.life<=0):
+            self.ai.clip_draw(self.aidieframe*32,0,30,49,self.aix,self.aiy)
 
 
-                break;
-        if(bomb.count !=5):
+
+        if(self.life>0):
             if(self.state==self.RIGHT):
                 self.ai.clip_draw(self.aiframe*32,48,30,49,self.aix,self.aiy)#오른쪽
             elif(self.state==self.LEFT):
@@ -500,7 +501,7 @@ def handle_events():
 
                 keyinputcount+=1
 
-                autoai = create_ai()
+                create_ai()
             elif event.key ==SDLK_a:
 
                 if(inputcount==0):
@@ -546,7 +547,6 @@ sx=40#별크좌표
 sy=27
 itemaix=30
 itemaiy=27
-BSIZE=20
 right=False#오른쪽
 left=False#왼쪽
 up=False#위
@@ -560,9 +560,9 @@ bomb=None
 bombteam=None
 blockteam=None
 score=0
-autoai=None
-aiteam=None
+autoai=[]
 
+aidiecount=0
 
 
 
@@ -572,7 +572,7 @@ def enter():
     global ma,ch
     global blockteam
     global bombteam,autoai
-    global aiteam
+
     global cx,cy
     global time
 
@@ -583,7 +583,7 @@ def enter():
     ma=Map()
     ch=Ch()
     #autoai=AI()
-    autoai=create_ai()
+    create_ai()
 
 def exit():
     global ma,ch,blockteam,block,bombteam,bomb,autoai
@@ -617,7 +617,7 @@ def update():
     if(itemstar==False):
         for bomb in bombteam:
             bomb.update()
-            bomb.boomframe=(bomb.boomframe+1)%8
+
 
     for block in blockteam:
 
