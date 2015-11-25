@@ -13,27 +13,26 @@ from pico2d import *
 name = "StartState"
 image = None
 logo_time = 0.0
-bgm=None
+
 
 def enter():
     global image
-    global bgm
+
     open_canvas()
-    bgm=load_music('football.mp3')#for the test not real
+
     image= load_image('kpu_credit.png')
 
 
 def exit():
-    global image,bgm
+    global image
     del(image)
-    del(bgm)
+    #del(bgm)
     close_canvas()
 
 def update():
     global logo_time
     global bgm
-    bgm.set_volume(128)
-    bgm.play(1)
+
     if (logo_time>1.0):
         logo_time=0
         #game_framework.quit()#넌뭐니

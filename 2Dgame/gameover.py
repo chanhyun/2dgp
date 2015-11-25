@@ -3,20 +3,23 @@ import game_main
 import logo_state
 from pico2d import *
 import os
+
 os.chdir('c://2dgame//image')
 
 
 image = None
-badendbgm=None
+
 
 def enter():
     global image
+    global badendbgm
     image = load_image('gameover.png')
 
-def exit():
-    global image
-    del(image)
 
+def exit():
+    global image,badendbgm
+    del(image)
+    del(badendbgm)
 
 def handle_events():
     pass
@@ -37,7 +40,8 @@ def draw():
 
 
 def update():
-    pass
+    global badendbgm
+
 
 
 def pause():

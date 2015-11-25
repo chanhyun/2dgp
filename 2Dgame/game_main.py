@@ -37,6 +37,8 @@ class Bomb:
 
         self.dieframe=0
 
+        self.boomsound=load_wav('boom.wav')#for the test not real
+
 
         if(self.time==0):
 
@@ -57,6 +59,8 @@ class Bomb:
         global itemstar
         global blockteam
         global block
+        global badendbgm
+
         self.frame=(self.frame+1)%4
         self.time=(self.time+1)%14
 
@@ -70,8 +74,12 @@ class Bomb:
             self.dieframe=(self.dieframe+1)
 
         elif(self.dieframe==4):
-            game_framework.push_state(gameover)
 
+
+            game_framework.push_state(gameover)
+            bgm.stop()
+            badendbgm.set_volume(128)
+            badendbgm.repeat_play()  #not yet
 
 
 
@@ -99,7 +107,8 @@ class Bomb:
     def explode(self,timer):
         global cx,cy
         global bombcount,autoai
-
+        self.boomsound.set_volume(128)
+        self.boomsound.play(1)
         self.boomframe=(self.boomframe+1)%8
 
 
@@ -432,7 +441,7 @@ class AI:
             if self.aidieframe==4:
                 aidiecount+=1
                 if(aidiecount==keyinputcount):
-                    game_framework.push_state(gameover)
+                    game_framework.push_state_state(gameover)
 
     def draw(self):
         global bombteam
@@ -561,21 +570,25 @@ bombteam=None
 blockteam=None
 score=0
 autoai=[]
-
+badendbgm=None
 aidiecount=0
 
 
 
-
+bgm=None
 def enter():
+    global bgm
 
     global ma,ch
     global blockteam
     global bombteam,autoai
-
+    global badendbgm
     global cx,cy
     global time
-
+    bgm=load_music('football.mp3')#for the test not real#불러오는걸 여기서함.
+    #badendbgm=load_music('gamebadending.mp3')
+    bgm.set_volume(128)
+    bgm.repeat_play()#ㅇㅇ 그냥 enter임
     cx=40
     cy=500
     bombteam=[Bomb() for i in range(11)]
@@ -594,9 +607,9 @@ def exit():
     del(ma)
     del(ch)
     del(autoai)
-
+    del(Bomb.boomsound)
 def update():
-
+    global bgm
     global itemstar
     global bomb
     global block
