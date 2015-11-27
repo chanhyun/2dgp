@@ -4,6 +4,7 @@ import gameover
 import os
 import random
 import json
+
 os.chdir('c://2dgame//image')
 
 class Block:

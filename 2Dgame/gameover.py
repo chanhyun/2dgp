@@ -3,16 +3,17 @@ import game_main
 import logo_state
 from pico2d import *
 import os
+import score
 
 os.chdir('c://2dgame//image')
 
 
 image = None
-
+timer=0
 
 def enter():
     global image
-    global badendbgm
+    global timer
     image = load_image('gameover.png')
 
 
@@ -40,8 +41,11 @@ def draw():
 
 
 def update():
-    global badendbgm
 
+    global timer
+    timer+=1
+    if(timer==10):
+        game_framework.push_state(score)
 
 
 def pause():
