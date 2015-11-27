@@ -586,7 +586,7 @@ def enter():
     global cx,cy
     global time
     bgm=load_music('football.mp3')#for the test not real#불러오는걸 여기서함.
-    #badendbgm=load_music('gamebadending.mp3')
+    badendbgm=load_music('gamebadending.mp3')
     bgm.set_volume(128)
     bgm.repeat_play()#ㅇㅇ 그냥 enter임
     cx=40
