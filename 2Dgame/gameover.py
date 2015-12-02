@@ -44,7 +44,7 @@ def update():
 
     global timer
     timer+=1
-    if(timer==10):
+    if(timer==30):
         game_framework.push_state(score)
 
 

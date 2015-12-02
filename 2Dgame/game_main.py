@@ -442,8 +442,10 @@ class AI:
             if self.aidieframe==4:
                 aidiecount+=1
                 if(aidiecount==keyinputcount):
-                    game_framework.push_state_state(gameover)
-
+                    game_framework.push_state(gameover)
+                    bgm.stop()
+                    badendbgm.set_volume(128)
+                    badendbgm.repeat_play()  #not yet
     def draw(self):
         global bombteam
         if(self.life<=0):
