@@ -153,7 +153,7 @@ class Map:
             self.font=load_font('ENCOBK.TTF')
     def draw(self):
         self.map.draw(400,300)
-        self.font.draw(30,550, '%d' %score)
+        self.font.draw(680,90, '%d' %score)
 
 
 
