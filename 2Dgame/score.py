@@ -32,7 +32,7 @@ def draw():
     global scoreimage
     clear_canvas()
     scoreimage.draw(400,300,800,600)
-    #mapfont.font.draw(400,300, '%d' %score,(255,255,0))
+    mapfont.font.draw(400,300, '%d' %score,(255,255,0))
 
     update_canvas()
 
