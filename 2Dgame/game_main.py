@@ -107,7 +107,7 @@ class Bomb:
 
     def explode(self,timer):
         global cx,cy
-        global bombcount,autoai
+        global bombcount,autoai,diesound
         self.boomsound.set_volume(128)
         self.boomsound.play(1)
         self.boomframe=(self.boomframe+1)%8
@@ -124,7 +124,9 @@ class Bomb:
         self.boomdo.clip_draw(self.boomframe*40,0,40,50,self.x,self.y-40)
 
         if((self.x+40==cx and self.y==cy) or (self.x-40==cx and self.y==cy) or (self.x==cx and self.y+40==cy)or (self.x==cx and self.y-40==cy)):
+
             self.count=3#캐릭죽을때
+
             for block in blockteam:
                 if((self.x+40==block.blx and self.y==block.bly) or (self.x-40==block.blx and self.y==block.bly) or (self.x==block.blx and self.y+40==block.bly)or (self.x==block.blx and self.y-40==block.bly)):
                     self.count=0
@@ -419,7 +421,7 @@ class AI:
     def update(self,timer):
         global blockteam
         global bombteam
-        global aidiecount
+        global aidiecount,aitime
         self.aiframe=(self.aiframe+1)%4
         if timer%3==0 and self.life>0:
 
@@ -442,6 +444,10 @@ class AI:
             if self.aidieframe==4:
                 aidiecount+=1
                 if(aidiecount==keyinputcount):
+                    diesound=load_music('scream.mp3')
+                    diesound.set_volume(64)
+                    diesound.play(1)
+                    delay(1)
                     game_framework.push_state(gameover)
                     bgm.stop()
                     badendbgm.set_volume(128)
@@ -575,8 +581,8 @@ score=0
 autoai=[]
 badendbgm=None
 aidiecount=0
-
-
+diesound=None
+aitime=0
 
 bgm=None
 def enter():
@@ -587,15 +593,17 @@ def enter():
     global bombteam,autoai
     global badendbgm
     global cx,cy
-    global time
+    global time,diesound
     bgm=load_music('football.mp3')#for the test not real#불러오는걸 여기서함.
     badendbgm=load_music('gamebadending.mp3')
+
     bgm.set_volume(128)
     bgm.repeat_play()#ㅇㅇ 그냥 enter임
     cx=40
     cy=500
     bombteam=[Bomb() for i in range(11)]
     blockteam=[Block() for i in range(11)]
+
     ma=Map()
     ch=Ch()
     #autoai=AI()
@@ -619,9 +627,13 @@ def update():
     global time
     global score
     global autoai
-    global keyinputcount
+    global keyinputcount,bombteam
     global itemaix,itemaiy
     time+=1
+
+    if time==100:
+        for i in range(10):
+           bombteam.append(Bomb())
 
     for i in range(0,keyinputcount):
         autoai[i].update(time)
@@ -633,6 +645,7 @@ def update():
     if(itemstar==False):
         for bomb in bombteam:
             bomb.update()
+
 
 
     for block in blockteam:
@@ -663,6 +676,7 @@ def draw():
     if(itemstar==False):
         for bomb in bombteam:
             bomb.draw(time)
+
     for block in blockteam:
         block.blockupdate()
 
