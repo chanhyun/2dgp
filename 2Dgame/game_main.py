@@ -1,11 +1,13 @@
 from pico2d import*#*는 몽땅다
 import game_framework
 import gameover
-import os
+
 import random
 import json
 
-os.chdir('c://2dgame//image')
+
+
+
 
 class Block:
     def __init__(self):
@@ -618,7 +620,7 @@ def exit():
     del(ma)
     del(ch)
     del(autoai)
-    del(Bomb.boomsound)
+
 def update():
     global bgm
     global itemstar

@@ -1,7 +1,7 @@
 
 
 import os
-os.chdir('c://2dgame//image')
+os.chdir('./image')
 #os.chdir('c://2dgame//music')
 import game_main
 import game_framework

@@ -1,9 +1,8 @@
 
 from pico2d import*
-import os
 import game_main
-
-os.chdir('c://2dgame//image')
+import game_framework
+badendbgm=None
 scoreimage=None
 score=0
 mapfont=None
@@ -17,13 +16,18 @@ def enter():
 
 
 def exit():
-    
-    del(mapfont.font.draw)
+    global mapfont,badendbgm
+    del(mapfont)
     del(badendbgm)
 
 def handle_events():
-    pass
+    events=get_events()
+    for event in events:
+        if event.type==SDL_KEYDOWN:
+            if event.key==SDLK_ESCAPE:
 
+
+                close_canvas()
 
 
 

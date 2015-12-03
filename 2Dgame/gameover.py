@@ -1,16 +1,14 @@
 import game_framework
-import game_main
-import logo_state
+
 from pico2d import *
-import os
+
 import score
 
-os.chdir('c://2dgame//image')
 
 
 image = None
 timer=0
-
+badendbgm=None
 def enter():
     global image
     global timer
